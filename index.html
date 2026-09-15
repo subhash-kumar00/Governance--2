@@ -16,13 +16,7 @@
       50% { transform: scale(1.08); opacity: 1; }
       100% { transform: scale(1); opacity: 1; }
     }
-    .animate-pop { animation: popZoom 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
-    @keyframes countPulse {
-      0% { transform: scale(0.6); opacity: 0; }
-      50% { transform: scale(1.25); opacity: 1; }
-      100% { transform: scale(1); opacity: 1; }
-    }
-    .animate-count { animation: countPulse 0.9s infinite alternate; }
+    .animate-pop { animation: popZoom 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
   </style>
 </head>
 <body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col justify-between select-none">
@@ -63,22 +57,18 @@
 
       <div class="bg-slate-900/90 p-5 rounded-2xl border border-slate-700 text-slate-200 text-xs sm:text-sm leading-relaxed space-y-2 shadow-inner">
         <p class="font-bold text-cyan-400 text-sm">"കൃത്യതയും സമഗ്രമായ അറിവുമാണ് സിവിൽ സർവീസ് പരീക്ഷകളിൽ നിങ്ങളെ മുന്നിലെത്തിക്കുന്നത്."</p>
-        <p class="text-slate-300">ഓരോ ചോദ്യവും ശ്രദ്ധയോടെ വായിച്ച് നെഗറ്റീവ് മാർക്കുകൾ ഒഴിവാക്കി ഉത്തരം നൽകുക. Best of luck!</p>
+        <p class="text-slate-300">കുറഞ്ഞത് <strong class="text-emerald-400">8 മാർക്ക്</strong> നേടിയാൽ മാത്രമേ ഔദ്യോഗിക നോട്ട്സ് PDF ഡൗൺലോഡ് ചെയ്യാൻ സാധിക്കൂ! ആത്മവിശ്വാസത്തോടെ പരീക്ഷ ആരംഭിക്കുക.</p>
       </div>
 
-      <div class="pt-2">
-        <button type="button" onclick="startExamCountdown()" class="w-full py-4 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 text-slate-950 font-black rounded-2xl transition transform active:scale-95 shadow-xl text-base flex items-center justify-center space-x-2 cursor-pointer">
+      <div class="pt-2 space-y-3">
+        <button type="button" onclick="startExamDirectly()" class="w-full py-4 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 text-slate-950 font-black rounded-2xl transition transform active:scale-95 shadow-xl text-base flex items-center justify-center space-x-2 cursor-pointer">
           <span>പരീക്ഷ ആരംഭിക്കുക</span>
           <span>🚀</span>
         </button>
+        <button type="button" onclick="fetchLiveLeaderboard()" class="w-full py-2.5 bg-slate-700 hover:bg-slate-600 text-cyan-300 font-bold rounded-xl text-xs transition">
+          📊 ലൈവ് റാങ്ക് ലിസ്റ്റ് കാണുക
+        </button>
       </div>
-    </div>
-
-    <!-- Step 1.5: Animated Countdown Overlay -->
-    <div id="countdownScreen" class="w-full max-w-sm bg-slate-800 border-2 border-cyan-500/60 rounded-3xl p-8 shadow-2xl text-center hidden space-y-4 animate-pop">
-      <span class="text-xs font-semibold text-slate-400 uppercase tracking-widest block">പരീക്ഷ ആരംഭിക്കുന്നു</span>
-      <div id="countdownNumber" class="text-7xl font-black text-cyan-400 font-mono animate-count">3</div>
-      <p class="text-xs text-slate-400">ചോദ്യങ്ങൾ തയ്യാറാകുന്നു...</p>
     </div>
 
     <!-- Step 2: Quiz Question Screen -->
@@ -190,18 +180,22 @@
 
         <!-- 8 Mark Cut-off Warning Box -->
         <div id="pdfLockNotice" class="hidden max-w-md mx-auto p-3.5 bg-rose-950/40 border border-rose-800/80 rounded-xl text-xs text-rose-300">
-          ⚠️ <strong>ശ്രദ്ധിക്കുക:</strong> കുറഞ്ഞത് 8 മാർക്ക് നേടിയാൽ മാത്രമേ ഔദ്യോഗിക നോട്ടുകൾ PDF ഡൗൺലോഡ് ചെയ്യാൻ സാധിക്കൂ. നിങ്ങളുടെ നിലവിലെ സ്കോർ 8-ൽ താഴെയാണ്.
+          ⚠️ <strong>ശ്രദ്ധിക്കുക:</strong> ഔദ്യോഗിക നോട്ടുകൾ PDF ഡൗൺലോഡ് ചെയ്യാൻ കുറഞ്ഞത് <strong>8 മാർക്ക്</strong> നേടിയിരിക്കണം. നിങ്ങളുടെ നിലവിലെ സ്കോർ 8-ൽ താഴെയാണ്.
         </div>
 
         <div class="flex flex-wrap items-center justify-center gap-3 pt-2">
-          <a id="originalPdfDownloadLink" href="#" target="_blank" class="hidden px-5 py-2.5 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 text-slate-950 font-black rounded-xl text-sm transition shadow-lg flex items-center space-x-2">
+          <button type="button" id="downloadOriginalNoteBtn" onclick="openFeedbackModal()" class="hidden px-5 py-2.5 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 text-slate-950 font-black rounded-xl text-sm transition shadow-lg flex items-center space-x-2 cursor-pointer">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"></path></svg>
             <span>ഔദ്യോഗിക നോട്ടുകൾ PDF ഡൗൺലോഡ് ചെയ്യുക 📥</span>
-          </a>
+          </button>
 
           <button type="button" id="downloadPdfBtn" class="px-5 py-2.5 bg-rose-600 hover:bg-rose-700 text-white font-bold rounded-xl text-sm transition shadow-lg flex items-center space-x-2">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
             <span>സ്കോർകാർഡ് PDF</span>
+          </button>
+
+          <button type="button" onclick="fetchLiveLeaderboard()" class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl text-sm transition shadow-lg">
+            📊 ലൈവ് റാങ്ക് ലിസ്റ്റ് കാണുക
           </button>
 
           <button type="button" onclick="returnToHomeWithData()" class="px-5 py-2.5 bg-slate-700 hover:bg-slate-600 text-white font-bold rounded-xl text-sm transition flex items-center space-x-1.5">
@@ -230,6 +224,49 @@
       </div>
     </div>
 
+    <!-- Leaderboard Modal -->
+    <div id="leaderboardModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+      <div class="bg-slate-800 border border-slate-700 rounded-2xl max-w-xl w-full p-6 shadow-2xl flex flex-col max-h-[85vh]">
+        <div class="flex items-center justify-between border-b border-slate-700 pb-4 mb-4">
+          <div>
+            <h3 class="text-xl font-bold text-cyan-400">ലൈവ് റാങ്ക് ലിസ്റ്റ് (Google Sheet)</h3>
+            <p class="text-xs text-slate-400">ആദ്യ ശ്രമത്തിലെ സ്കോർ അടിസ്ഥാനമാക്കി ക്രമീകരിച്ചത്</p>
+          </div>
+          <button type="button" onclick="closeLeaderboard()" class="text-slate-400 hover:text-white text-2xl font-bold">&times;</button>
+        </div>
+        <div id="leaderboardLoading" class="py-10 text-center text-sm text-slate-400">ഗൂഗിൾ ഷീറ്റിൽ നിന്നും റാങ്ക് ലിസ്റ്റ് ശേഖരിക്കുന്നു...</div>
+        <div class="flex-1 overflow-y-auto custom-scroll pr-1 hidden" id="leaderboardTableWrapper">
+          <table class="w-full text-left text-sm">
+            <thead class="text-xs uppercase bg-slate-900/80 text-slate-400 sticky top-0">
+              <tr>
+                <th class="py-2.5 px-3">റാങ്ക്</th>
+                <th class="py-2.5 px-3">പേര്</th>
+                <th class="py-2.5 px-3">മൊബൈൽ</th>
+                <th class="py-2.5 px-3 text-right">മാർക്ക്</th>
+              </tr>
+            </thead>
+            <tbody id="leaderboardBody" class="divide-y divide-slate-700"></tbody>
+          </table>
+        </div>
+        <div class="pt-4 border-t border-slate-700 mt-4 text-center">
+          <button type="button" onclick="closeLeaderboard()" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded-lg text-xs font-semibold text-white">ക്ലോസ് ചെയ്യുക</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Feedback Modal -->
+    <div id="feedbackModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+      <div class="bg-slate-800 border border-slate-700 rounded-2xl max-w-sm w-full p-6 shadow-2xl text-center space-y-4">
+        <div class="w-12 h-12 rounded-full bg-cyan-500/20 text-cyan-400 flex items-center justify-center mx-auto text-2xl">🌟</div>
+        <h3 class="text-lg font-bold text-white">നിങ്ങൾക്ക് ഈ ക്വിസ് ഇഷ്ടമായോ?</h3>
+        <p class="text-xs text-slate-400">പ്രതികരണം നൽകിയ ശേഷം ഔദ്യോഗിക നോട്ട്സ് PDF ഡൗൺലോഡ് ചെയ്യാം.</p>
+        <div class="flex items-center justify-center space-x-4 pt-2">
+          <button type="button" onclick="recordFeedbackAndOpenDownload('Like')" class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl text-sm transition">👍 Like</button>
+          <button type="button" onclick="recordFeedbackAndOpenDownload('Dislike')" class="px-5 py-2.5 bg-rose-600 hover:bg-rose-500 text-white font-bold rounded-xl text-sm transition">👎 Dislike</button>
+        </div>
+      </div>
+    </div>
+
   </main>
 
   <footer class="text-center py-3 text-[11px] text-slate-500 border-t border-slate-800">
@@ -242,7 +279,6 @@
     let ORIGINAL_PDF_URL = "https://drive.google.com/file/d/1aecXW0ASLm8F-z8pSSjW-u7ksDm4sIHq/view?usp=sharing";
     let examTitle = "കേരള ഗവേണൻസ് - സെറ്റ് 2";
 
-    // 20 Questions from the provided Kerala Governance Set 2 PDF
     const questionsData = [
       {
         q: "കേരള അഡ്‌മിനിസ്ട്രേറ്റീവ് സർവീസ് (KAS) ഔദ്യോഗികമായി നിലവിൽ വന്ന വർഷം ഏത്?",
@@ -369,6 +405,7 @@
     let currentUser = { name: "പഠിതാവ്", phone: "0000000000" };
     let currentIndex = 0;
     let userAnswers = new Array(questionsData.length).fill(null);
+    let wrongQuestionsList = [];
     let currentFontSizeLevel = 1;
 
     const fontSizes = [
@@ -382,32 +419,8 @@
     let timerInterval = null;
 
     const motivationScreen = document.getElementById('motivationScreen');
-    const countdownScreen = document.getElementById('countdownScreen');
     const quizScreen = document.getElementById('quizScreen');
     const resultScreen = document.getElementById('resultScreen');
-
-    // Safe Web Audio Synthesizer Beep (Zero browser crashes)
-    function playAudioBeep(freq = 600, duration = 0.15) {
-      try {
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
-        gain.gain.setValueAtTime(0.12, audioCtx.currentTime);
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
-        osc.start();
-        osc.stop(audioCtx.currentTime + duration);
-      } catch (e) {}
-    }
-
-    // Vibration feedback for mobile devices
-    function triggerDeviceVibrate() {
-      if ("vibrate" in navigator) {
-        try { navigator.vibrate([100, 50, 100]); } catch (e) {}
-      }
-    }
 
     window.addEventListener('DOMContentLoaded', () => {
       const urlParams = new URLSearchParams(window.location.search);
@@ -471,38 +484,13 @@
       qElem.className = `${fontSizes[currentFontSizeLevel].q} font-semibold leading-relaxed text-slate-100 whitespace-pre-line transition-all duration-200`;
     }
 
-    // 🌟 ബട്ടൺ അമർത്തുമ്പോൾ സുഗമമായി ആരംഭിക്കുന്ന ആനിമേഷൻ കൗണ്ട്ഡൗൺ & ഓഡിയോ
-    function startExamCountdown() {
+    function startExamDirectly() {
       motivationScreen.classList.add('hidden');
-      countdownScreen.classList.remove('hidden');
-
-      playAudioBeep(650, 0.2);
-      triggerDeviceVibrate();
-
-      let count = 3;
-      const countElem = document.getElementById('countdownNumber');
-      countElem.innerText = count;
-
-      const countdownTimer = setInterval(() => {
-        count--;
-        if (count > 0) {
-          countElem.innerText = count;
-          playAudioBeep(650, 0.2);
-          triggerDeviceVibrate();
-        } else {
-          clearInterval(countdownTimer);
-          playAudioBeep(850, 0.3); // ഫൈനൽ സ്റ്റാർട്ട് ബീപ്പ്
-          triggerDeviceVibrate();
-
-          countdownScreen.classList.add('hidden');
-          quizScreen.classList.remove('hidden');
-          quizScreen.classList.add('flex');
-
-          buildPalette();
-          renderQuestion(0);
-          startTimer();
-        }
-      }, 1000);
+      quizScreen.classList.remove('hidden');
+      quizScreen.classList.add('flex');
+      buildPalette();
+      renderQuestion(0);
+      startTimer();
     }
 
     function startTimer() {
@@ -642,7 +630,7 @@
       if (timerInterval) clearInterval(timerInterval);
 
       let correct = 0, wrong = 0, skipped = 0;
-      let wrongQuestionsList = [];
+      wrongQuestionsList = [];
 
       for (let i = 0; i < questionsData.length; i++) {
         if (userAnswers[i] === null) {
@@ -669,20 +657,19 @@
 
       const badge = document.getElementById('scoreMotivationBadge');
       if (scoreNum >= 16) {
-        badge.className = "max-w-xl mx-auto p-4 rounded-2xl border border-cyan-500/60 bg-cyan-950/40 text-cyan-300";
-        badge.innerHTML = `🏆 <strong>അത്യുജ്ജ്വല പ്രകടനം!</strong> കേരള ഗവേണൻസ് വിഭാഗത്തിൽ നിങ്ങൾ മികച്ച അറിവ് തെളിയിച്ചിരിക്കുന്നു. ഇതേ ആത്മവിശ്വാസം നിലനിർത്തുക!`;
+        badge.className = "max-w-xl mx-auto p-4 rounded-2xl border border-emerald-500/60 bg-emerald-950/40 text-emerald-300";
+        badge.innerHTML = `🌟 <strong>അത്യുജ്ജ്വല പ്രകടനം!</strong> കേരള ഗവേണൻസ് വിഭാഗത്തിൽ നിങ്ങൾ മികച്ച അറിവ് തെളിയിച്ചിരിക്കുന്നു. ഇതേ ആത്മവിശ്വാസം നിലനിർത്തുക!`;
       } else if (scoreNum >= 10) {
         badge.className = "max-w-xl mx-auto p-4 rounded-2xl border border-cyan-500/60 bg-cyan-950/40 text-cyan-300";
-        badge.innerHTML = `👏 <strong>മികച്ച പ്രകടനം!</strong> ചെറിയ ചില തെറ്റുകൾ തിരുത്തിയാൽ പൂർണ്ണ മാർക്കിലേക്ക് എത്താം. വിശദീകരണങ്ങൾ നന്നായി മനസ്സിലാക്കുക!`;
-      } else if (scoreNum >= 6) {
+        badge.innerHTML = `👍 <strong>മികച്ച പ്രകടനം!</strong> ചെറിയ ചില തെറ്റുകൾ തിരുത്തിയാൽ പൂർണ്ണ മാർക്കിലേക്ക് എത്താം. വിശദീകരണങ്ങൾ നന്നായി മനസ്സിലാക്കുക!`;
+      } else if (scoreNum >= 8) {
         badge.className = "max-w-xl mx-auto p-4 rounded-2xl border border-amber-500/60 bg-amber-950/40 text-amber-300";
         badge.innerHTML = `📖 <strong>നല്ലൊരു ശ്രമം!</strong> ഇനിയും കൂടുതൽ വായനയും റിവിഷനും ആവശ്യമാണ്. തെറ്റിയ ചോദ്യങ്ങളും വിശദീകരണങ്ങളും പരിശീലിച്ച് സ്കോർ ഉയർത്തുക.`;
       } else {
         badge.className = "max-w-xl mx-auto p-4 rounded-2xl border border-rose-500/60 bg-rose-950/40 text-rose-300";
-        badge.innerHTML = `🌱 <strong>തളരരുത്!</strong> ഇതൊരു തുടക്കം മാത്രമാണ്. നോട്ട്സുകൾ കൂടുതൽ ആഴത്തിൽ പഠിച്ച് വീണ്ടും പരിശീലിക്കുക, വിജയം സുനിശ്ചിതമാണ്!`;
+        badge.innerHTML = `💪 <strong>തളരരുത്!</strong> ഇതൊരു തുടക്കം മാത്രമാണ്. നോട്ട്സുകൾ കൂടുതൽ ആഴത്തിൽ പഠിച്ച് വീണ്ടും പരിശീലിക്കുക, വിജയം സുനിശ്ചിതമാണ്!`;
       }
 
-      // റിസൾട്ട് പ്രൊഫൈൽ ഹിസ്റ്ററിയിൽ രേഖപ്പെടുത്തുന്നു
       try {
         if (currentUser && currentUser.phone && currentUser.phone !== "0000000000") {
           const historyKey = `sk_history_${currentUser.phone}`;
@@ -699,15 +686,15 @@
         }
       } catch (err) {}
 
-      const downloadBtn = document.getElementById('originalPdfDownloadLink');
+      const downloadBtn = document.getElementById('downloadOriginalNoteBtn');
       const lockNotice = document.getElementById('pdfLockNotice');
 
-      if (scoreNum >= 8.0) {
+      if (scoreNum >= 8.0 && ORIGINAL_PDF_URL) {
         downloadBtn.classList.remove('hidden');
         lockNotice.classList.add('hidden');
       } else {
         downloadBtn.classList.add('hidden');
-        lockNotice.classList.remove('hidden');
+        if (ORIGINAL_PDF_URL) lockNotice.classList.remove('hidden');
       }
 
       renderSolutions();
@@ -817,6 +804,16 @@
       document.getElementById('filterReviewArea').classList.add('hidden');
     };
 
+    function openFeedbackModal() {
+      document.getElementById('feedbackModal').classList.remove('hidden');
+    }
+
+    function recordFeedbackAndOpenDownload(feedbackVal) {
+      document.getElementById('feedbackModal').classList.add('hidden');
+      sendFeedbackToGoogleSheet(currentUser.phone, feedbackVal);
+      window.open(ORIGINAL_PDF_URL, '_blank');
+    }
+
     function sendResultToGoogleSheet(payload) {
       const statusDiv = document.getElementById('sheetStatus');
       if (!GOOGLE_SHEET_WEBAPP_URL || GOOGLE_SHEET_WEBAPP_URL.includes("YOUR_APPS_SCRIPT_WEBAPP_URL_HERE")) {
@@ -826,6 +823,8 @@
       }
 
       payload.sheetName = QUIZ_SHEET_NAME;
+      payload.wrongQuestionsCount = wrongQuestionsList.length;
+      payload.wrongQuestionsList = wrongQuestionsList.join(", ");
 
       fetch(GOOGLE_SHEET_WEBAPP_URL, {
         method: 'POST',
@@ -858,6 +857,21 @@
       });
     }
 
+    function sendFeedbackToGoogleSheet(phone, feedback) {
+      if (!GOOGLE_SHEET_WEBAPP_URL || GOOGLE_SHEET_WEBAPP_URL.includes("YOUR_APPS_SCRIPT_WEBAPP_URL_HERE")) return;
+      fetch(GOOGLE_SHEET_WEBAPP_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: "submit_feedback",
+          sheetName: QUIZ_SHEET_NAME,
+          phone: phone,
+          feedback: feedback
+        })
+      });
+    }
+
     function renderSolutions() {
       const cont = document.getElementById('solutionsContainer');
       cont.innerHTML = '';
@@ -869,9 +883,9 @@
         const isSkipped = uAns === null;
 
         let badge = isSkipped 
-          ? '<span class="px-2 py-0.5 rounded text-xs bg-slate-700 text-slate-300">Skipped</span>'
+          ? '<span class="px-2 py-0.5 rounded text-xs bg-slate-700 text-slate-300">Skipped (മാർക്ക് മാറ്റമില്ല সচিব)</span>' 
           : isCorrect 
-          ? '<span class="px-2 py-0.5 rounded text-xs bg-emerald-950 text-emerald-400 border border-emerald-800 font-bold">+1.00 Mark (ശരിയുത്തരം)</span>'
+          ? '<span class="px-2 py-0.5 rounded text-xs bg-emerald-950 text-emerald-400 border border-emerald-800 font-bold">+1.00 Mark (ശരിയുത്തരം)</span>' 
           : '<span class="px-2 py-0.5 rounded text-xs bg-rose-950 text-rose-400 border border-rose-800 font-bold">-0.33 Mark (തെറ്റ്)</span>';
 
         let optsHtml = '<div class="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-2">';
@@ -899,14 +913,14 @@
             <span class="font-bold text-cyan-400 text-sm">ചോദ്യം ${idx + 1}</span>
             <div class="flex items-center space-x-2">
               <div>${badge}</div>
-              <button onclick="handleReportQuestion(${idx + 1})" class="px-2 py-0.5 bg-rose-950 border border-rose-700 text-[10px] font-bold text-rose-300 rounded hover:bg-rose-900 transition flex items-center space-x-1">
+              <button type="button" onclick="handleReportQuestion(${idx + 1})" class="px-2 py-0.5 bg-rose-950 border border-rose-700 text-[10px] font-bold text-rose-300 rounded hover:bg-rose-900 transition flex items-center space-x-1">
                 <span>Report 🚩</span>
               </button>
             </div>
           </div>
           <p class="text-sm font-medium text-slate-200 whitespace-pre-line">${q.q}</p>
           ${optsHtml}
-          <div class="bg-slate-800/90 p-3 rounded-lg border border-slate-700 mt-2 text-xs leading-relaxed">
+          <div class="bg-slate-800 p-2.5 rounded-lg border border-slate-700 mt-2 text-xs leading-relaxed">
             <span class="font-bold text-cyan-400">വിശദീകരണം:</span>
             <span class="text-slate-300 ml-1">${q.exp}</span>
           </div>
@@ -943,6 +957,57 @@
         }, 3000);
       });
     });
+
+    function fetchLiveLeaderboard() {
+      const modal = document.getElementById('leaderboardModal');
+      const loader = document.getElementById('leaderboardLoading');
+      const wrapper = document.getElementById('leaderboardTableWrapper');
+      const tbody = document.getElementById('leaderboardBody');
+
+      modal.classList.remove('hidden');
+      loader.classList.remove('hidden');
+      wrapper.classList.add('hidden');
+      tbody.innerHTML = '';
+
+      if (!GOOGLE_SHEET_WEBAPP_URL || GOOGLE_SHEET_WEBAPP_URL.includes("YOUR_APPS_SCRIPT_WEBAPP_URL_HERE")) {
+        loader.innerText = "Google Apps Script URL സെറ്റ് ചെയ്തിട്ടില്ല.";
+        return;
+      }
+
+      fetch(`${GOOGLE_SHEET_WEBAPP_URL}?sheet=${encodeURIComponent(QUIZ_SHEET_NAME)}`)
+        .then(res => res.json())
+        .then(data => {
+          loader.classList.add('hidden');
+          wrapper.classList.remove('hidden');
+
+          if (!data || data.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="4" class="py-6 text-center text-slate-500">ഇതുവരെ ആരും പരീക്ഷ പൂർത്തിയാക്കിയിട്ടില്ല.</td></tr>';
+            return;
+          }
+
+          data.sort((a, b) => b.score - a.score || b.correct - a.correct);
+
+          data.forEach((entry, idx) => {
+            const masked = entry.phone ? String(entry.phone).substring(0, 5) + '*****' : '---';
+            const row = document.createElement('tr');
+            row.className = 'hover:bg-slate-700/30 text-slate-300';
+            row.innerHTML = `
+              <td class="py-2.5 px-3 font-mono font-bold">${idx + 1}</td>
+              <td class="py-2.5 px-3 font-medium">${entry.name}</td>
+              <td class="py-2.5 px-3 font-mono text-xs text-slate-400">${masked}</td>
+              <td class="py-2.5 px-3 text-right font-mono font-bold text-cyan-400">${Number(entry.score).toFixed(2)}</td>
+            `;
+            tbody.appendChild(row);
+          });
+        })
+        .catch(() => {
+          loader.innerText = "റാങ്ക് ലിസ്റ്റ് ലോഡ് ചെയ്യാൻ കഴിഞ്ഞില്ല. ദയവായി അല്പം കഴിഞ്ഞ് ശ്രമിക്കുക.";
+        });
+    }
+
+    function closeLeaderboard() {
+      document.getElementById('leaderboardModal').classList.add('hidden');
+    }
 
     function returnToHomeWithData() {
       const homePortalUrl = "https://subhash-kumar00.github.io/PSC-EXAMS/";
